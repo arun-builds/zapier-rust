@@ -1,10 +1,13 @@
 use axum:: {
+    body::Body,
+
     extract::Path,
     routing::post,
+    response::{IntoResponse, Json},
     Router,
 };
 
-use serde_json::Value as JsonValue;
+use serde_json::{Value as JsonValue, json};
 
 use database::db::Database;
 
@@ -19,14 +22,26 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn zap_handler(Path((user_id, zap_id)): Path<(String, String)>){
+async fn zap_handler(Path(
+    (user_id, zap_id)): Path<(String, String)>,
+    Json(payload): Json<JsonValue>,
+
+)->impl IntoResponse{
 
     // TODO: Store the trigger in the database
     println!("user_id: {}, zap_id: {}", user_id, zap_id);
+    
 
     let mut db = Database::default().unwrap();
-    let create_zap = db.create_zap(zap_id, JsonValue::Null);
-    println!("create_zap: {:?}", create_zap);
+    
+   match db.create_zap(zap_id, payload){
+    Ok(zap) => {
+        println!("zap: {:?}", zap);
+    }
+    Err(e) => {
+        println!("error: {:?}", e);
+    }
+   }
 
     // TODO: Push the trigger to the queue(Kafka/Redis)
 
