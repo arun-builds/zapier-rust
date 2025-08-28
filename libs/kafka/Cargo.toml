@@ -1,0 +1,8 @@
+[package]
+name = "kafka"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rdkafka = "0.38.0"
+tokio = { workspace = true  }

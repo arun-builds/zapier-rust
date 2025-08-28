@@ -1,6 +1,6 @@
 use crate::{config::Config, schema::action::table, schema::zap_run, schema::zap_run_outbox};
 use diesel::prelude::*;
-
+use diesel::sql_types::Jsonb;
 use serde_json::Value as JsonValue;
 use uuid::Uuid;
 
@@ -14,6 +14,7 @@ pub struct Database {
 pub struct ZapRun {
     pub id: String,
     pub zap_id: String,
+    #[diesel(sql_type = Jsonb)]
     pub metadata: JsonValue,
 }
 
@@ -33,8 +34,8 @@ impl Database {
     }
 
     pub fn create_zap(
-        &mut self,
-        zap_id: String,
+            &mut self,
+            zap_id: String,
         metadata:JsonValue ,
     ) -> QueryResult<()> {
     
@@ -63,4 +64,17 @@ impl Database {
             diesel::result::QueryResult::Ok(())
         })
     }
+
+    pub fn get_pending_zap_run_outbox(&mut self) -> QueryResult<Vec<ZapRunOutbox>> {
+        
+        let pending_rows = zap_run_outbox::table
+        .limit(10)
+        .select(ZapRunOutbox::as_select())
+        .load(&mut self.conn)
+        .expect("Error loading zap run outbox");
+
+        Ok(pending_rows)
+    }
+
+  
 }
