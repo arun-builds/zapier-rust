@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 rdkafka = "0.38.0"
 tokio = { workspace = true  }
+log = { workspace = true }

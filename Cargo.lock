@@ -462,6 +462,7 @@ dependencies = [
 name = "kafka"
 version = "0.1.0"
 dependencies = [
+ "log",
  "rdkafka",
  "tokio",
 ]
@@ -1147,3 +1148,7 @@ dependencies = [
 [[package]]
 name = "worker"
 version = "0.1.0"
+dependencies = [
+ "kafka",
+ "tokio",
+]
