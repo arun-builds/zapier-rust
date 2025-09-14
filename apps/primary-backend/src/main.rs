@@ -1,19 +1,46 @@
-use axum::Router;
+use actix_web::{web, App, HttpServer, middleware, http::header};
+use actix_cors::Cors;
+use std::io;
+use routes::user_routes::config as user_config;
+use database::establish_connection_pool;
 
 mod routes;
 mod handlers;
-mod middlewares;
 
-#[tokio::main]
-async fn main() {
+#[actix_web::main]
+async fn main() -> io::Result<()> {
+    
+    
+    // Create a shared database connection
+    let pool = web::Data::new(establish_connection_pool());
 
+    log::info!("Starting server at http://localhost:8080");
+    println!("Starting server at http://localhost:8080");
 
-let app = Router::new()
-.nest("/api/v1", routes::app_router());
+    HttpServer::new(move || {
+        // Configure CORS
+        let cors = Cors::default()
+            .allowed_origin("http://localhost:3000")  // Your frontend URL
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_headers(vec![
+                header::AUTHORIZATION,
+                header::ACCEPT,
+                header::CONTENT_TYPE,
+            ])
+            .supports_credentials()
+            .max_age(86400);
 
-    println!("Primary backend is running on port 8080");
-
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+        App::new()
+            .app_data(pool.clone())
+            .wrap(cors) 
+            .wrap(middleware::Logger::default())
+            .wrap(middleware::DefaultHeaders::new().add(("X-Version", "1.0")))
+            .service(
+                web::scope("/api/v1")
+                    .configure(user_config)
+            )
+    })
+    .bind(("0.0.0.0", 8080))?
+    .run()
+    .await
 }
-

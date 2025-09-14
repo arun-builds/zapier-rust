@@ -4,8 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-tokio = { workspace = true }
-axum = { workspace = true }
+actix-web = "4.11.0"
+actix-cors = "0.7.1"
+log = "0.4.28"
 database ={ path = "../../libs/database"}
 serde = { workspace = true }
 serde_json = { workspace = true }
+diesel = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
