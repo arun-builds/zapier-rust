@@ -8,7 +8,9 @@ tokio = { version = "1.39.0", features = ["full"] }
 axum = "0.8.0"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.130"
-diesel = { version = "2.2.0", features = ["postgres", "serde_json"] }
+diesel = { version = "2.2.0", features = ["postgres", "uuid", "chrono", "r2d2", "numeric"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.17.0", features = ["v4","serde"] }
 log = "0.4.27"
 # chrono = "0.4.30"
 # uuid = "1.13.0"
