@@ -6,6 +6,8 @@ use database::establish_connection_pool;
 
 mod routes;
 mod handlers;
+mod types;
+mod utils;
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
