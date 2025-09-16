@@ -1,16 +1,13 @@
-// use axum::{
-//     Router,
-//     routing::{get, post},
-// };
+use actix_web::web::{ServiceConfig, get, post, route, scope};
+use crate::handlers::zap_handlers::{create_zap, get_zap, get_zap_by_id};
+use crate::middlewares::auth_middleware::AuthService;
 
-// use crate::handlers::zap_handlers::{get_zap, create_zap};
-
-// // Assuming you have a users handler
-// // use crate::handlers::users::{list_users};
-
-// pub fn zap_routes() -> Router {
-//     Router::new()
-//         .route("/", post(create_zap))
-//         .route("/", get(get_zap))
-       
-// }
+pub fn config(cfg: &mut ServiceConfig) {
+    cfg.service(
+        scope("/zap")
+        .wrap(AuthService::new())
+        .route("/", post().to(create_zap))
+        .route("/", get().to(get_zap))
+        .route("/{zap_id}", get().to(get_zap_by_id))
+    );
+}

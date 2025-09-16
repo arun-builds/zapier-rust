@@ -1,13 +1,14 @@
 use actix_web::{web, App, HttpServer, middleware, http::header};
 use actix_cors::Cors;
 use std::io;
-use routes::{auth_routes::config as auth_config, user_routes::config as user_config};
+use routes::{auth_routes::config as auth_config, user_routes::config as user_config, zap_routes::config as zap_config};
 use database::establish_connection_pool;
 
 mod routes;
 mod handlers;
 mod types;
 mod utils;
+mod middlewares;
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
@@ -41,6 +42,7 @@ async fn main() -> io::Result<()> {
                 web::scope("/api/v1")
                     .configure(auth_config)
                     .configure(user_config)
+                    .configure(zap_config)
             )
     })
     .bind(("0.0.0.0", 8080))?

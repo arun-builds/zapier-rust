@@ -20,12 +20,21 @@ struct Claims {
 
 pub async fn signup_user(pool: web::Data<DbPool>, form: web::Json<SignupForm>) -> impl Responder {
 
+//TODO: Check if username is already taken
+// TODO: email sending for verification in signup 
+//TODO: email verification
+//TODO: reset password
+//TODO: forgot password
+
+
 
     if let Err(e) = form.validate() {
         return HttpResponse::BadRequest().json(e);
     }
 
     let conn = &mut pool.get().expect("couldn't get db connection from pool");
+
+    
 
     match users.filter(email.eq(&form.email)).first::<User>(conn) {
         Ok(_) => {
@@ -34,6 +43,9 @@ pub async fn signup_user(pool: web::Data<DbPool>, form: web::Json<SignupForm>) -
         Err(diesel::result::Error::NotFound) => (),
         Err(_) => return HttpResponse::InternalServerError().finish(),
     }
+
+
+
 
     let hashed_password = hash(&form.password, DEFAULT_COST)
         .map_err(|_| HttpResponse::InternalServerError().finish())
