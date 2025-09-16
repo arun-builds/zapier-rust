@@ -1,7 +1,7 @@
 use actix_web::{web, App, HttpServer, middleware, http::header};
 use actix_cors::Cors;
 use std::io;
-use routes::user_routes::config as user_config;
+use routes::{auth_routes::config as auth_config, user_routes::config as user_config};
 use database::establish_connection_pool;
 
 mod routes;
@@ -39,6 +39,7 @@ async fn main() -> io::Result<()> {
             .wrap(middleware::DefaultHeaders::new().add(("X-Version", "1.0")))
             .service(
                 web::scope("/api/v1")
+                    .configure(auth_config)
                     .configure(user_config)
             )
     })

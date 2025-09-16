@@ -2,7 +2,7 @@ use actix_web::{web, dev::ServiceRequest};
 use jsonwebtoken::{decode, DecodingKey, Validation};
 use database::{DbPool, models::user::User};
 use diesel::prelude::*;
-use database::schema::user::dsl::*;
+use database::schema::users::dsl::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::env;

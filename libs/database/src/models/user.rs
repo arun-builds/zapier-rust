@@ -5,7 +5,7 @@ use chrono::NaiveDateTime;
 
 
 #[derive(Queryable, Selectable, Insertable, Serialize, Deserialize)]
-#[diesel(table_name = crate::schema::user)]
+#[diesel(table_name = crate::schema::users)]
 pub struct User {
     pub id: Uuid,
     pub username: String,
