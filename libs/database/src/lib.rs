@@ -4,6 +4,7 @@ use dotenvy::dotenv;
 pub mod models;
 pub mod schema;
 
+
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 pub fn establish_connection_pool() -> DbPool {
