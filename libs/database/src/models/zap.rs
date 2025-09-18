@@ -23,3 +23,13 @@ pub struct Trigger {
     pub trigger_id: Uuid,
     pub metadata: JsonValue,
 } 
+
+#[derive(Queryable, Selectable, Insertable, Serialize, Deserialize)]
+#[diesel(table_name = crate::schema::action)]
+pub struct Action {
+    pub id: Uuid,
+    pub zap_id: Uuid,
+    pub action_id: Uuid,
+    pub metadata: JsonValue,
+    pub sorting_order: i32,
+} 
