@@ -1,11 +1,13 @@
+// use crate::types::zap::Action;
 use crate::types::zap_types::ZapCreateSchema;
 use actix_web::{HttpResponse, Responder, web, web::ReqData};
 use database::DbPool;
-use database::schema::zap::dsl::*;
+// use database::schema::zap::dsl::*;
 use database::{
-    models::zap::{Trigger, Zap},
-    schema::{ trigger::dsl::*},
+    models::zap::{Trigger, Zap, Action as DatabaseAction},
+    schema::{ trigger::dsl::*, zap::dsl::*, zap::table, action::dsl::*},
 };
+use database::schema::zap;
 use diesel::prelude::*;
 use serde_json:: json;
 use uuid::Uuid;
@@ -23,7 +25,7 @@ pub async fn create_zap(
     // TODO: change trigger_id to available_trigger_id in db
 
     conn.transaction(|conn| {
-        let new_zap = Zap {
+        let new_zap = Zap{
             id: Uuid::new_v4(),
             user_id: user_id_from_req.into_inner(),
             trigger_id: pre_generated_trigger_id,
@@ -41,6 +43,19 @@ pub async fn create_zap(
             .values(&new_trigger)
             .execute(conn)?;
 
+            if let Some(actions) = &body.actions {
+                let new_actions: Vec<DatabaseAction> = actions.iter().map(|action_data| DatabaseAction {
+                    id: Uuid::new_v4(),
+                    zap_id: new_zap.id,
+                    action_id: action_data.available_action_id,
+                    metadata: action_data.action_metadata.clone().unwrap_or_else(|| json!({})),
+                    sorting_order: action_data.sorting_order,
+                }).collect();
+                diesel::insert_into(action)
+                    .values(&new_actions)
+                    .execute(conn)?;
+            }
+
         diesel::result::QueryResult::Ok(())
     })
     .map_err(|_| {
@@ -49,16 +64,33 @@ pub async fn create_zap(
     })
     .expect("Failed to create zap");
 
+   
+
     HttpResponse::Ok().json(json!({ "message": "Zap created successfully", "zap": body }))
 }
 
-pub async fn get_zap(pool: web::Data<DbPool>) -> impl Responder {
-    HttpResponse::Ok().json(json!({ "message": "Zap fetched successfully" }))
+pub async fn get_zap(pool: web::Data<DbPool>,user_id_from_req: ReqData<Uuid>,) -> impl Responder {
+    let conn = &mut pool.get().expect("couldn't get db connection from pool");
+    // TODO: also include actions and triggers
+    let zaps = zap.filter(user_id.eq(user_id_from_req.into_inner())).load::<Zap>(conn).expect("Error loading zaps");
+    HttpResponse::Ok().json(json!(zaps ))
 }
 
 pub async fn get_zap_by_id(
     pool: web::Data<DbPool>,
-    zap_id_from_path: web::Path<Uuid>,
+    path: web::Path<Uuid>,
+    user_id_from_req: ReqData<Uuid>,
 ) -> impl Responder {
-    HttpResponse::Ok().json(json!({ "message": "Zap by id fetched successfully" }))
+    let conn = &mut pool.get().expect("couldn't get db connection from pool");
+
+    let zap_id_from_path = path.into_inner();
+
+    if zap_id_from_path == Uuid::nil() {
+        return HttpResponse::BadRequest().json(json!({ "error": "Zap ID is required" }));
+    }
+
+    //TODO: also include actions and triggers
+
+    let zap_data = zap.filter(zap::id.eq(zap_id_from_path)).filter(user_id.eq(user_id_from_req.into_inner())).first::<Zap>(conn).expect("Error loading zap");
+    HttpResponse::Ok().json(json!(zap_data ))
 }

@@ -9,6 +9,7 @@ use diesel::sql_types::Jsonb;
 #[derive(Deserialize,Serialize,Debug)]
 pub struct Action {
     pub available_action_id: Uuid,
+    pub sorting_order: i32,
     pub action_metadata: Option<JsonValue>,
 }
 
