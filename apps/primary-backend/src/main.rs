@@ -23,7 +23,7 @@ async fn main() -> io::Result<()> {
     HttpServer::new(move || {
         // Configure CORS
         let cors = Cors::default()
-            .allowed_origin("http://localhost:3000")  // Your frontend URL
+            .allowed_origin("http://localhost:5173")  // Your frontend URL
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![
                 header::AUTHORIZATION,

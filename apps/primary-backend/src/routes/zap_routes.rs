@@ -7,7 +7,7 @@ pub fn config(cfg: &mut ServiceConfig) {
         scope("/zap")
         .wrap(AuthService::new())
         .route("/", post().to(create_zap))
-        .route("/", get().to(get_zap))
+        .route("/getzap", get().to(get_zap))
         .route("/{zap_id}", get().to(get_zap_by_id))
     );
 }

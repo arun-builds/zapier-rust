@@ -69,7 +69,9 @@ pub async fn create_zap(
     HttpResponse::Ok().json(json!({ "message": "Zap created successfully", "zap": body }))
 }
 
-pub async fn get_zap(pool: web::Data<DbPool>,user_id_from_req: ReqData<Uuid>,) -> impl Responder {
+pub async fn get_zap(pool: web::Data<DbPool>,
+    user_id_from_req: ReqData<Uuid>,
+) -> impl Responder {
     let conn = &mut pool.get().expect("couldn't get db connection from pool");
     // TODO: also include actions and triggers
     let zaps = zap.filter(user_id.eq(user_id_from_req.into_inner())).load::<Zap>(conn).expect("Error loading zaps");

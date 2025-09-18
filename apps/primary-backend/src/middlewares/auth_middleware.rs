@@ -41,7 +41,6 @@ where
                 let response = HttpResponse::Unauthorized()
                     .json(serde_json::json!({ "error": "Unauthorized" }))
                     .map_into_right_body();
-
                 Box::pin(async { Ok(ServiceResponse::new(request, response)) })
             }
         }

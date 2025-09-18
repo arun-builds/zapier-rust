@@ -1,5 +1,5 @@
 use crate::types::auth_types::{SignupForm, LoginForm};
-use actix_web::{HttpResponse, Responder, web, cookie::Cookie};
+use actix_web::{HttpResponse, Responder, web, cookie::{Cookie, SameSite}};
 use bcrypt::{DEFAULT_COST, hash, verify};
 use database::schema::users::dsl::*;
 use database::{DbPool, models::user::User};
@@ -67,7 +67,6 @@ pub async fn signup_user(pool: web::Data<DbPool>, form: web::Json<SignupForm>) -
         .expect("Failed to insert user");
 
 
-        println!("new_user: {}", new_user.id);
 
         let token = encode(
             &Header::default(),
@@ -75,7 +74,6 @@ pub async fn signup_user(pool: web::Data<DbPool>, form: web::Json<SignupForm>) -
             &EncodingKey::from_secret(get_jwt_secret().as_bytes())
         ).unwrap();
 
-        println!("token: {}", token);
 
         let cookie = Cookie::build("token", token)
         .path("/api/v1")
@@ -83,7 +81,6 @@ pub async fn signup_user(pool: web::Data<DbPool>, form: web::Json<SignupForm>) -
         .http_only(true)
         .finish();
 
-        println!("cookie: {:?}", cookie);
 
     HttpResponse::Ok()
         .cookie(cookie)
@@ -119,6 +116,7 @@ pub async fn login_user(
                     let cookie = Cookie::build("token", token)
                         .path("/api/v1")
                         .secure(true)
+                        .same_site(SameSite::None)
                         .http_only(true)
                         .finish();
 
@@ -147,7 +145,7 @@ pub async fn login_user(
                 Cookie::build("token", "")
                     .http_only(true)
                     .secure(true)
-                    .path("/")
+                    .path("/api/v1")
                     .expires(actix_web::cookie::time::OffsetDateTime::now_utc())  // Expire immediately
                     .finish()
             )
