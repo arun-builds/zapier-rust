@@ -2,6 +2,6 @@
 resolver = "3"
 
 members = ["apps/*", "libs/*"]
-exclude = ["apps/frontend"]
+# exclude = ["apps/frontend"]
 
 [workspace.dependencies]
