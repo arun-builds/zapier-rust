@@ -1,14 +1,17 @@
+use deadpool_diesel::{postgres::BuildError, Manager, Pool};
 use crate::config::Config;
-use diesel::prelude::*;
+use diesel::{pg::PgConnection};
 
-pub struct Database {
-    pub conn: PgConnection,
-}
+pub type DbPool = Pool<Manager<PgConnection>>;
 
-impl Database {
-    pub fn new() -> Result<Self, ConnectionError> {
-        let config = Config::default();
-        let conn = PgConnection::establish(&config.database_url)?;
-        Ok(Self { conn })
-    }
+
+
+
+pub fn create_pool() -> Result<DbPool, BuildError> {
+    let config = Config::default();
+    let manager = deadpool_diesel::postgres::Manager::new(
+        &config.database_url,
+        deadpool_diesel::Runtime::Tokio1,
+    );
+    deadpool_diesel::postgres::Pool::builder(manager).build()
 }
