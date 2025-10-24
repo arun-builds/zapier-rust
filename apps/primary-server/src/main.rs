@@ -15,14 +15,18 @@ use diesel::prelude::*;
 use types::inputs::InputUser;
 use uuid::Uuid;
 
+use crate::routes::v1_router;
+
 mod types;
+mod routes;
+mod handlers;
 
 #[tokio::main]
 async fn main() {
     let db_pool: DbPool = create_pool().expect("Failed to create pool");
 
     let app = Router::new()
-        .route("/user/create", post(create_user))
+    .nest("/api", routes::v1_router())
         .with_state(db_pool);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
