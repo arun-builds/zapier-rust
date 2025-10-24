@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-diesel = { workspace = true }
-deadpool-diesel = { workspace = true }
 dotenvy = { workspace = true }
 serde = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
+sqlx = { workspace = true }

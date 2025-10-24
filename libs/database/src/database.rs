@@ -1,17 +1,11 @@
-use deadpool_diesel::{postgres::BuildError, Manager, Pool};
+use sqlx::PgPool;
+
 use crate::config::Config;
-use diesel::{pg::PgConnection};
 
-pub type DbPool = Pool<Manager<PgConnection>>;
-
-
-
-
-pub fn create_pool() -> Result<DbPool, BuildError> {
+pub async fn database() -> PgPool {
     let config = Config::default();
-    let manager = deadpool_diesel::postgres::Manager::new(
-        &config.database_url,
-        deadpool_diesel::Runtime::Tokio1,
-    );
-    deadpool_diesel::postgres::Pool::builder(manager).build()
+    let pool = sqlx::postgres::PgPool::connect(&config.database_url)
+        .await
+        .unwrap();
+    pool
 }
